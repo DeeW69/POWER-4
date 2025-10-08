@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", initGame);
 `
 
 func registerGameRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/static/index.js", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/game.js", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 			return
