@@ -8,12 +8,35 @@
   <body>
     <main>
       <h1>Puissance 4</h1>
-      <p class="status" data-player="red">Tour du joueur rouge</p>
+
+      {{if .Winner}}
+        <p class="status" data-player="{{.Winner}}">Victoire du joueur {{if eq .Winner "red"}}rouge{{else}}jaune{{end}}</p>
+      {{else}}
+        <p class="status" data-player="{{.Current}}">Tour du joueur {{if eq .Current "red"}}rouge{{else}}jaune{{end}}</p>
+      {{end}}
+
+      <form action="/play" method="post" class="start-actions" aria-label="Choisir une colonne">
+        {{$root := .}}
+        {{range $j, $v := .ColsIdx}}
+          <button type="submit" name="col" value="{{$j}}" {{if or $root.GameOver (index $root.ColumnFull $j)}}disabled{{end}}>Col {{$j}}</button>
+        {{end}}
+        <button type="submit" name="reset" value="1">Réinitialiser</button>
+      </form>
+
       <section class="board" aria-label="Grille du jeu">
-        <div class="grid" data-cols="7" data-rows="6"></div>
+        <div class="grid" data-cols="7" data-rows="6">
+          {{range $i, $row := .Board}}
+            {{range $j, $cell := $row}}
+              <div class="cell" data-row="{{$i}}" data-col="{{$j}}" aria-label="Case ligne {{$i}}, colonne {{$j}}">
+                {{if $cell}}
+                  <div class="piece piece--{{$cell}}"></div>
+                {{end}}
+              </div>
+            {{end}}
+          {{end}}
+        </div>
       </section>
-      <footer>Cliquer sur une colonne pour laisser le jeton tomber.</footer>
+      <footer>Choisissez une colonne pour laisser tomber un jeton.</footer>
     </main>
-    <script src="/game.js" defer></script>
   </body>
-</html>
+  </html>
