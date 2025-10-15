@@ -3,31 +3,34 @@
   <head>
     <meta charset="utf-8" />
     <title>Puissance 4</title>
+    <!-- Feuille de style principale -->
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <main>
       <h1>Puissance 4</h1>
 
+      <!-- Zone d'état: tour en cours ou résultat final -->
       {{if .Winner}}
-        <p class="status" data-player="{{.Winner}}">Victoire du joueur {{if eq .Winner "red"}}rouge{{else}}jaune{{end}}</p>
+        <p class="status" data-player="{{.Winner}}">{{.WinnerName}} gagne la partie</p>
+        <p class="status" data-player="{{if eq .Winner "red"}}yellow{{else}}red{{end}}">{{.LoserName}} perd la partie</p>
       {{else}}
-        <p class="status" data-player="{{.Current}}">Tour du joueur {{if eq .Current "red"}}rouge{{else}}jaune{{end}}</p>
+        <p class="status" data-player="{{.Current}}">Tour de {{.CurrentName}} — Gravité: {{if eq .Gravity "inverse"}}Inverse ↑{{else}}Normale ↓{{end}} (changement dans {{.NextFlip}})</p>
       {{end}}
 
-      <form action="/play" method="post" class="start-actions" aria-label="Choisir une colonne">
-        {{$root := .}}
-        {{range $j, $v := .ColsIdx}}
-          <button type="submit" name="col" value="{{$j}}" {{if or $root.GameOver (index $root.ColumnFull $j)}}disabled{{end}}>Col {{$j}}</button>
-        {{end}}
+      <!-- Formulaire utilisé pour envoyer les coups (colonne cliquée) et réinitialiser -->
+      <form action="/play" method="post" class="start-actions" id="play-form" aria-label="Choisir une colonne">
+        <input type="hidden" name="col" id="col-input" />
         <button type="submit" name="reset" value="1">Réinitialiser</button>
       </form>
 
-      <section class="board" aria-label="Grille du jeu">
-        <div class="grid" data-cols="7" data-rows="6">
+      <!-- Grille de jeu: la classe CSS reflète le niveau (dimensions) et la gravité -->
+      <section class="board board--{{if .Gravity}}{{.Gravity}}{{else}}normal{{end}}" aria-label="Grille du jeu">
+        <div class="grid grid--{{if .Level}}{{.Level}}{{else}}easy{{end}}" data-cols="{{.Cols}}" data-rows="{{.Rows}}" data-gameover="{{.GameOver}}">
           {{range $i, $row := .Board}}
             {{range $j, $cell := $row}}
-              <div class="cell" data-row="{{$i}}" data-col="{{$j}}" aria-label="Case ligne {{$i}}, colonne {{$j}}">
+              <!-- Marque la case du haut d'une colonne pleine pour désactiver le clic (valide dans les deux gravités quand colonne pleine) -->
+              <div class="cell{{if and (eq $i 0) (index $.ColumnFull $j)}} is-full{{end}}" data-row="{{$i}}" data-col="{{$j}}" aria-label="Case ligne {{$i}}, colonne {{$j}}">
                 {{if $cell}}
                   <div class="piece piece--{{$cell}}"></div>
                 {{end}}
@@ -36,6 +39,27 @@
           {{end}}
         </div>
       </section>
+      <script>
+        // Rendu interactif: clique sur une cellule -> soumet la colonne correspondante
+        (function() {
+          const grid = document.querySelector('.grid');
+          const form = document.getElementById('play-form');
+          const colInput = document.getElementById('col-input');
+          if (!grid || !form || !colInput) return;
+          const gameOver = grid.getAttribute('data-gameover') === 'true';
+          if (gameOver) return;
+          grid.addEventListener('click', function (e) {
+            const cell = e.target.closest('.cell');
+            if (!cell || !grid.contains(cell)) return;
+            const col = cell.getAttribute('data-col');
+            if (col == null) return;
+            const topCell = grid.querySelector('.cell[data-row="0"][data-col="' + col + '"]');
+            if (topCell && topCell.classList.contains('is-full')) return;
+            colInput.value = col;
+            form.submit();
+          });
+        })();
+      </script>
       <footer>Choisissez une colonne pour laisser tomber un jeton.</footer>
     </main>
   </body>

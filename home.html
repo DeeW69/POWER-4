@@ -3,13 +3,34 @@
   <head>
     <meta charset="utf-8" />
     <title>Accueil | Puissance 4</title>
+    <!-- Feuille de style principale -->
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <main>
       <h1>Prêt pour une partie ?</h1>
       <p>Bienvenue sur notre version web de Puissance 4. Lance la partie pour rejoindre la grille.</p>
+      <!-- Formulaire de démarrage: noms des joueurs + niveau -->
       <form action="/play" method="get" class="start-actions">
+        <div class="players">
+          <!-- Saisie du nom du joueur rouge -->
+          <div class="player">
+            <label for="p1">Nom du joueur 1 (rouge)</label>
+            <input id="p1" name="player1" type="text" placeholder="Ex. Alice" maxlength="10" />
+          </div>
+          <!-- Saisie du nom du joueur jaune -->
+          <div class="player">
+            <label for="p2">Nom du joueur 2 (jaune)</label>
+            <input id="p2" name="player2" type="text" placeholder="Ex. Bob" maxlength="10" />
+          </div>
+        </div>
+        <!-- Sélection de la difficulté (contrôle la taille de la grille) -->
+        <fieldset class="levels" style="border:none; display:flex; gap:12px; margin:8px 0; padding:0; color:#f5f5f5;">
+          <legend style="position:absolute; left:-9999px;">Niveau</legend>
+          <label><input type="radio" name="level" value="easy" checked /> Facile</label>
+          <label><input type="radio" name="level" value="medium" /> Moyen</label>
+          <label><input type="radio" name="level" value="hard" /> Difficile</label>
+        </fieldset>
         <button type="submit" class="play-button">Play</button>
       </form>
     </main>
